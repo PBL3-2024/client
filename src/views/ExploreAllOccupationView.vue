@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Chart from 'primevue/chart'
 import { ref } from 'vue'
+import { fetchUnemployment } from '@/api/unemployment'
+import { onMounted } from 'vue';
 
 const pieChartData = ref({
   labels: [
@@ -21,17 +23,23 @@ const pieChartData = ref({
 })
 const pieChartOptions = ref({})
 
-const lineChartData = ref({
-  labels: ['a', 'n', 'd', 'i', 'b', 'c', 'z'],
-  datasets: [{
-    label: 'My First Dataset',
-    data: [65, 59, 80, 81, 56, 55, 40],
-    fill: false,
-    borderColor: 'rgb(75, 192, 192)',
-    tension: 0.1
-  }]
-})
+const lineChartData = ref({})
 const lineChartOptions = ref({})
+
+onMounted(async () => {
+  const unemployment = (await fetchUnemployment('00-0000')).data;
+  unemployment.unemployment.reverse();
+  lineChartData.value = {
+    labels: unemployment.unemployment.map(u => u.date.substring(0, 10)),
+    datasets: [{
+      label: 'Unemployment',
+      data: unemployment.unemployment.map(u => u.value),
+      fill: false,
+      borderColor: 'rgb(75, 192, 192)',
+      tension: 0.1
+    }]
+  }
+});
 
 </script>
 
@@ -39,8 +47,7 @@ const lineChartOptions = ref({})
   <main>
     <h1>Explore All Occupations</h1>
     <p> nice </p>
-    <Chart type="pie" :data="pieChartData" :options="pieChartOptions" class="w-full md:w-[30rem]" />
     <Chart type="line" :data="lineChartData" :options="lineChartOptions" class="w-full md:w-[30rem]" />
-
+    <Chart type="pie" :data="pieChartData" :options="pieChartOptions" class="w-full md:w-[30rem]" />
   </main>
 </template>
