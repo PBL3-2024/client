@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ExploreAllOccupationView from '../views/ExploreAllOccupationView.vue'
+import SelectMajorAndMinorGroupView from '@/views/SelectMajorAndMinorGroupView.vue'
 
 
 const router = createRouter({
@@ -9,6 +10,10 @@ const router = createRouter({
       path: '/occupations',
       name: 'occupations',
       component: ExploreAllOccupationView
+    }, {
+      path: '/select/:socCode',
+      name: 'select',
+      component: SelectMajorAndMinorGroupView
     }
   ]
 })
