@@ -8,16 +8,12 @@ const route = useRoute()
 const title = ref('plumber')
 const desciption = ref('andi make a lot of money')
 
-watch(
-  () => route.params.socCode,
-  async socCode => {
-    const occupation = (await fetchOccupation(JSON.stringify(socCode))).data;
+onMounted(async () => {
+  const occupation = (await fetchOccupation(route.params.socCode)).data;
   
-    title.value = occupation.title
-    desciption.value = occupation.description    
-  
-  }
-)
+  title.value = occupation.title
+  desciption.value = occupation.description
+});
 
 
 </script>
