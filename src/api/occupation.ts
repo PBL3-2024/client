@@ -17,5 +17,5 @@ export const fetchOccupation = async function(socCode: string) {
 }
 
 export const fetchChildOccupation = async function(socCode: string) {
-    return axios.get<OccupationWrapper>(import.meta.env.VITE_API_URL + `/occupations/children?socCode=${socCode}`)
+    return axios.get<OccupationWrapper>(import.meta.env.VITE_API_URL + `/occupations/children/?socCode=${socCode}`)
 }
