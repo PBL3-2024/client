@@ -15,7 +15,7 @@ const emit = defineEmits(['occupationSelected'])
 <template>
   <Card>
     <template #title>{{ occupation.title }}</template>
-    <template #content>
+    <template #footer>
       <div class="card-body">
         <Button @click="() => emit('occupationSelected')">Learn More</Button>
       </div>
