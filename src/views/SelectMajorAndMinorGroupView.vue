@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { fetchChildOccupation, fetchOccupation, type Occupation } from '@/api/occupation'
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router'
 import { isDetailedSoc } from '@/util/soc-support'
 import SimpleOccupationButton from '@/components/SimpleOccupationButton.vue'
 import OccupationBreadcrumb from '@/components/OccupationBreadcrumb.vue'
@@ -41,11 +41,14 @@ watch(route, refreshContent);
 </script>
 
 <template>
+  <header>
+    <h1>Select Your Occupation</h1>
+  </header>
   <main>
     <OccupationBreadcrumb 
       :soc-code="route.params.socCode as string"
       @occupation-selected="(socCode) => selectOccupation(socCode)"/>
-    <h1>{{ title }}</h1>
+    <h2>{{ title }}</h2>
     <p>{{ description }}</p>
     <div class="children" v-if="children">
       <SimpleOccupationButton 

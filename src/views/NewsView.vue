@@ -1,11 +1,41 @@
 <script setup lang="ts">
+import { ref, onMounted, watch } from 'vue'
+import { fetchNews, type News } from '@/api/news'
+import NewsCard from '@/components/NewsCard.vue'
+import { useRoute, useRouter } from 'vue-router'
 
+
+const route = useRoute()
+
+const news = ref<News[]>([])
+
+const refreshContent = async function() {
+  const socCode = route.params.socCode as string;
+  const newsResponse = (await fetchNews(socCode)).data;
+  
+  news.value = newsResponse.news
+}
+
+onMounted(refreshContent);
+watch(route, refreshContent);
 
 </script>
 
 <template>
-  <main>
-    <h1>Certification Information</h1>
-
-  </main>
+  <section>
+    <header>
+      <h2>News</h2>
+    </header>
+    <main class="content">
+      <NewsCard v-for="n in news" :news="n"/>
+    </main>
+  </section>
 </template>
+
+<style scoped>
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+</style>
