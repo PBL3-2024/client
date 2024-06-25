@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { fetchChildOccupation, fetchOccupation, type Occupation } from '@/api/occupation';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, RouterView } from 'vue-router';
 import { isDetailedSoc } from '@/util/soc-support';
 import SimpleOccupationButton from '@/components/SimpleOccupationButton.vue';
 import OccupationBreadcrumb from '@/components/OccupationBreadcrumb.vue';
@@ -13,6 +13,7 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
+import TabMenu from 'primevue/tabmenu';
 
 const route = useRoute();
 const router = useRouter();
@@ -27,7 +28,17 @@ const lineChartOptions = ref({});
 const pieChartData = ref({});
 const pieChartOptions = ref({});
 
-const showTabs = ref<boolean>(true); 
+const showTabs = ref<boolean>(true);
+
+const menuTabs = computed(() => [
+    { label: 'Information', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/information` },
+    { label: 'News', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/news` },
+    { label: 'Learning', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/learning` },
+    { label: 'Certifications', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/certifications` },
+    { label: 'Jobs', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/jobs` },
+    { label: 'Reports', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/reports` },
+    { label: 'Manage Demand', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/demand` }
+]);
 
 const refreshContent = async () => {
   const socCode = route.params.socCode as string;
@@ -47,7 +58,7 @@ const refreshContent = async () => {
   showTabs.value = socCode !== '00-0000';
 };
 const selectOccupation = (socCode: string) => {
-  router.push(`/occupations/${socCode}`);
+  router.replace({ params: { socCode }})
   showTabs.value = socCode !== '00-0000';
 };
 
@@ -100,36 +111,21 @@ onMounted(refreshContent);
 
     <h2>{{ title }}</h2>
 
-    <Tabs v-if="showTabs" value="0">
-      <TabList>
-        <Tab value="0">Information</Tab>
-        <Tab value="1">News</Tab>
-        <Tab value="2">Learning</Tab>
-        <Tab value="3">Certifications</Tab>
-        <Tab value="4">Jobs</Tab>
-        <Tab value="5">Reports</Tab>
-      </TabList>
-      <TabPanels>
-        <TabPanel value="0">
-          <p class="m-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-        </TabPanel>
-        <TabPanel value="1">
-          <p class="m-0">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
-        </TabPanel>
-        <TabPanel value="2">
-          <p class="m-0">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores.</p>
-        </TabPanel>
-        <TabPanel value="3">
-          <p class="m-0">Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.</p>
-        </TabPanel>
-        <TabPanel value="4">
-          <p class="m-0">Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.</p>
-        </TabPanel>
-        <TabPanel value="5">
-          <p class="m-0">Harum quidem rerum facilis est et expedita distinctio.</p>
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
+    <TabMenu :model="menuTabs">
+        <template #item="{ item, props }">
+            <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
+                <a v-ripple :href="href" v-bind="props.action" @click="navigate">
+                    <span v-bind="props.icon" />
+                    <span v-bind="props.label">{{ item.label }}</span>
+                </a>
+            </router-link>
+            <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action">
+                <span v-bind="props.icon" />
+                <span v-bind="props.label">{{ item.label }}</span>
+            </a>
+        </template>
+    </TabMenu>
+    <RouterView />
 
     <Chart v-if="route.params.socCode === '00-0000'" type="line" :data="lineChartData" :options="lineChartOptions" class="w-full md:w-[30rem]" />
 
