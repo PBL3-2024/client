@@ -3,19 +3,33 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div class="main-wrapper">
-    <div class="main-container">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">andi</RouterLink>
-        <RouterLink to="/occupations">explore all occupations</RouterLink>
-        <RouterLink to="/homepage">homepageview</RouterLink>
-      </nav>
-      <RouterView />  
-    </div>
-  </div>
+  <nav>
+    <ul>
+      <li>Logo</li>
+      <li>
+        <button>Profile</button>
+      </li>
+    </ul>
+  </nav>
+  <main>
+    <RouterView />  
+  </main>
 </template>
 
 <style lang="scss">
-@import 'primeicons/primeicons.css'
+@import 'primeicons/primeicons.css';
+</style>
+
+<style lang="scss" scoped>
+nav {
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: justify;
+    justify-content: space-between;
+  }
+}
 </style>
