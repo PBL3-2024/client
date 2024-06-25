@@ -1,5 +1,3 @@
-
-
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { fetchChildOccupation, fetchOccupation, type Occupation } from '@/api/occupation';
@@ -26,67 +24,58 @@ const children = ref<Occupation[]>([]);
 const lineChartData = ref({});
 const lineChartOptions = ref({});
 
-const lineChartData2 = ref({});
-const lineChartOptions2 = ref({});
+const pieChartData = ref({});
+const pieChartOptions = ref({});
 
-const showTabs = ref<boolean>(false); 
+const showTabs = ref<boolean>(true); 
 
 const refreshContent = async () => {
   const socCode = route.params.socCode as string;
-  const occupation = (await fetchOccupation(socCode)).data;
+  const { data: occupation } = await fetchOccupation(socCode);
 
   title.value = occupation.title;
   description.value = occupation.description;
 
   if (!isDetailedSoc(socCode)) {
-    children.value = (await fetchChildOccupation(socCode)).data.occupation;
+    const { data: { occupation: childOccupations } } = await fetchChildOccupation(socCode);
+    children.value = childOccupations;
   } else {
     children.value = [];
   }
   
-  if (socCode === '00-0000') {
-    showTabs.value = false;
-  } else {
-    showTabs.value = socCode.endsWith('0');
-  }
+  // Update tab visibility logic
+  showTabs.value = socCode !== '00-0000';
 };
-
 const selectOccupation = (socCode: string) => {
-  if (socCode) {
-    router.push(`/occupations/${socCode}`);
-    if (socCode === '00-0000') {
-      showTabs.value = false;
-    } else {
-      showTabs.value = socCode.endsWith('00');
-    }
-  } else {
-    router.push('/');
-  }
+  router.push(`/occupations/${socCode}`);
+  showTabs.value = socCode !== '00-0000';
 };
 
 onMounted(async () => {
-  const unemployment = (await fetchUnemployment('00-0000')).data;
-  unemployment.unemployment.reverse();
+  const [unemployment, employment] = await Promise.all([
+    fetchUnemployment('00-0000'),
+    fetchEmployment('00-0000')
+  ]);
+
+  const unemploymentData = unemployment.data.unemployment.reverse();
+  const employmentData = employment.data.employment.reverse();
+
   lineChartData.value = {
-    labels: unemployment.unemployment.map(u => u.date.substring(0, 10)),
+    labels: unemploymentData.map(u => u.date.substring(0, 10)),
     datasets: [{
       label: 'Unemployment',
-      data: unemployment.unemployment.map(u => u.value),
+      data: unemploymentData.map(u => u.value),
       fill: false,
       borderColor: 'rgb(75, 192, 192)',
       tension: 0.1
     }]
   };
-});
 
-onMounted(async () => {
-  const employment = (await fetchEmployment('00-0000')).data;
-  employment.employment.reverse();
-  lineChartData2.value = {
-    labels: employment.employment.map(e => e.date.substring(0, 10)),
+  pieChartData.value = {
+    labels: employmentData.map(e => e.date.substring(0, 10)),
     datasets: [{
       label: 'Employment',
-      data: employment.employment.map(e => e.value),
+      data: employmentData.map(e => e.value),
       fill: false,
       borderColor: 'rgb(192, 75, 75)',
       tension: 0.1
@@ -97,7 +86,6 @@ onMounted(async () => {
 watch(route, refreshContent);
 
 onMounted(refreshContent);
-
 </script>
 
 <template>
@@ -109,7 +97,9 @@ onMounted(refreshContent);
       :soc-code="route.params.socCode as string"
       @occupation-selected="selectOccupation"
     />
-  
+
+    <h2>{{ title }}</h2>
+
     <Tabs v-if="showTabs" value="0">
       <TabList>
         <Tab value="0">Information</Tab>
@@ -121,50 +111,32 @@ onMounted(refreshContent);
       </TabList>
       <TabPanels>
         <TabPanel value="0">
-          <p class="m-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-          </p>
+          <p class="m-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         </TabPanel>
         <TabPanel value="1">
-          <p class="m-0">
-            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim
-            ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi.
-          </p>
+          <p class="m-0">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
         </TabPanel>
         <TabPanel value="2">
-          <p class="m-0">
-            At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa
-            qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
-          </p>
+          <p class="m-0">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores.</p>
         </TabPanel>
         <TabPanel value="3">
-          <p class="m-0">
-            At vero eos et accusamus et is praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa
-            qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
-          </p>
+          <p class="m-0">Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.</p>
         </TabPanel>
         <TabPanel value="4">
-          <p class="m-0">
-            At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa
-            qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum qa nobis est eligendi optio cumque nihil impedit quo minus.
-          </p>
+          <p class="m-0">Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.</p>
         </TabPanel>
         <TabPanel value="5">
-          <p class="m-0">
-            At vero eos et accusamus et iusto odio  laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
-          </p>
+          <p class="m-0">Harum quidem rerum facilis est et expedita distinctio.</p>
         </TabPanel>
       </TabPanels>
     </Tabs>
 
-
     <Chart v-if="route.params.socCode === '00-0000'" type="line" :data="lineChartData" :options="lineChartOptions" class="w-full md:w-[30rem]" />
 
-    <Chart v-if="route.params.socCode === '00-0000'" type="line" :data="lineChartData2" :options="lineChartOptions2" class="w-full md:w-[30rem]" />
+    <Chart v-if="route.params.socCode === '00-0000'" type="pie" :data="pieChartData" :options="pieChartOptions" class="w-full md:w-[30rem]" />
 
-    <h2>{{ title }}</h2>
-    <p>{{ description }}</p>
+    <p v-if="!showTabs">{{ description }}</p>
+
     <div class="children" v-if="children.length">
       <SimpleOccupationButton 
         v-for="occupation in children" 
