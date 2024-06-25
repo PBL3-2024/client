@@ -8,7 +8,7 @@ import JobView from '@/views/JobView.vue'
 import ManageDemandView from '@/views/ManageDemandView.vue'
 import ReportTypeView from '@/views/ReportTypeView.vue'
 import NewsView from '@/views/NewsView.vue'
-
+import HomePageView from '@/views/HomePageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,6 +43,10 @@ const router = createRouter({
       path: '/select/:socCode',
       name: 'select',
       component: SelectMajorAndMinorGroupView
+    }, {
+      path: '/',
+      name: 'home',
+      component: HomePageView
     },
   ]
 })
