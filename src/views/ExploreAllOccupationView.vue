@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
-import { fetchChildOccupation, fetchOccupation, type Occupation } from '@/api/occupation';
-import { useRoute, useRouter, RouterView } from 'vue-router';
+import { fetchChildOccupation, fetchOccupation, Occupation } from '@/api/occupation'; // Adjust import as per your actual implementation
+import { useRoute, useRouter } from 'vue-router';
 import { isDetailedSoc } from '@/util/soc-support';
-import SimpleOccupationButton from '@/components/SimpleOccupationButton.vue';
-import OccupationBreadcrumb from '@/components/OccupationBreadcrumb.vue';
+import SimpleOccupationButton from '@/components/SimpleOccupationButton.vue'; // Adjust component path as per your actual implementation
+import OccupationBreadcrumb from '@/components/OccupationBreadcrumb.vue'; // Adjust component path as per your actual implementation
 import Chart from 'primevue/chart';
-import { fetchUnemployment } from '@/api/unemployment';
-import { fetchEmployment } from '@/api/employment';
-import Tabs from 'primevue/tabs';
-import TabList from 'primevue/tablist';
-import Tab from 'primevue/tab';
-import TabPanels from 'primevue/tabpanels';
-import TabPanel from 'primevue/tabpanel';
+import { fetchUnemployment } from '@/api/unemployment'; // Adjust import as per your actual implementation
+import { fetchEmployment } from '@/api/employment'; // Adjust import as per your actual implementation
 import TabMenu from 'primevue/tabmenu';
 
 const route = useRoute();
@@ -22,22 +17,27 @@ const title = ref<string | null>(null);
 const description = ref<string | null>(null);
 const children = ref<Occupation[]>([]);
 
-const lineChartData = ref({});
-const lineChartOptions = ref({});
-
-const pieChartData = ref({});
-const pieChartOptions = ref({});
+const lineChartData = ref<any>({});
+const lineChartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
+});
+const pieChartData = ref<any>({});
+const pieChartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
+});
 
 const showTabs = ref<boolean>(true);
 
 const menuTabs = computed(() => [
-    { label: 'Information', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/information` },
-    { label: 'News', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/news` },
-    { label: 'Learning', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/learning` },
-    { label: 'Certifications', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/certifications` },
-    { label: 'Jobs', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/jobs` },
-    { label: 'Reports', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/reports` },
-    { label: 'Manage Demand', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/demand` }
+  { label: 'Information', icon: 'pi pi-home', route: `/occupations/${route.params.socCode}/information` },
+  { label: 'News', icon: 'pi pi-newspaper', route: `/occupations/${route.params.socCode}/news` },
+  { label: 'Learning', icon: 'pi pi-book', route: `/occupations/${route.params.socCode}/learning` },
+  { label: 'Certifications', icon: 'pi pi-certificate', route: `/occupations/${route.params.socCode}/certifications` },
+  { label: 'Jobs', icon: 'pi pi-briefcase', route: `/occupations/${route.params.socCode}/jobs` },
+  { label: 'Reports', icon: 'pi pi-file', route: `/occupations/${route.params.socCode}/reports` },
+  { label: 'Manage Demand', icon: 'pi pi-chart-line', route: `/occupations/${route.params.socCode}/demand` }
 ]);
 
 const refreshContent = async () => {
@@ -53,12 +53,11 @@ const refreshContent = async () => {
   } else {
     children.value = [];
   }
-  
-  // Update tab visibility logic
   showTabs.value = socCode !== '00-0000';
 };
+
 const selectOccupation = (socCode: string) => {
-  router.replace({ params: { socCode }})
+  router.replace({ params: { socCode } });
   showTabs.value = socCode !== '00-0000';
 };
 
@@ -68,30 +67,42 @@ onMounted(async () => {
     fetchEmployment('00-0000')
   ]);
 
-  const unemploymentData = unemployment.data.unemployment.reverse();
-  const employmentData = employment.data.employment.reverse();
+  const employmentData = employment.data.employment.filter(e => {
+    const employmentDataDate = new Date(e.date);
+    const employmentDataYear = new Date().getFullYear();
+    return employmentDataDate.getFullYear() === employmentDataYear && !e.forecasted;
+  });
 
-  lineChartData.value = {
-    labels: unemploymentData.map(u => u.date.substring(0, 10)),
-    datasets: [{
-      label: 'Unemployment',
-      data: unemploymentData.map(u => u.value),
-      fill: false,
-      borderColor: 'rgb(75, 192, 192)',
-      tension: 0.1
-    }]
-  };
+  employmentData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  pieChartData.value = {
-    labels: employmentData.map(e => e.date.substring(0, 10)),
-    datasets: [{
-      label: 'Employment',
-      data: employmentData.map(e => e.value),
-      fill: false,
-      borderColor: 'rgb(192, 75, 75)',
-      tension: 0.1
-    }]
-  };
+  const lastestEmploymentData = employmentData[0];
+
+  if (lastestEmploymentData) {
+    const socCodesForLatestYear = employmentData.map(e => e.socCode);
+
+    const unemploymentData = unemployment.data.unemployment.reverse();
+
+    lineChartData.value = {
+      labels: unemploymentData.map(u => u.date.substring(0, 10)),
+      datasets: [{
+        label: 'Unemployment',
+        data: unemploymentData.map(u => u.value),
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }]
+    };
+
+    pieChartData.value = {
+      labels: socCodesForLatestYear,
+      datasets: [{
+        label: 'Employment',
+        data: socCodesForLatestYear.values,
+        backgroundColor: ['rgb(192, 75, 75)', 'rgb(75, 192, 192)'],
+        hoverBackgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)']
+      }]
+    };
+  }
 });
 
 watch(route, refreshContent);
@@ -111,21 +122,20 @@ onMounted(refreshContent);
 
     <h2>{{ title }}</h2>
 
-    <TabMenu :model="menuTabs">
-        <template #item="{ item, props }">
-            <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-                <a v-ripple :href="href" v-bind="props.action" @click="navigate">
-                    <span v-bind="props.icon" />
-                    <span v-bind="props.label">{{ item.label }}</span>
-                </a>
-            </router-link>
-            <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action">
-                <span v-bind="props.icon" />
-                <span v-bind="props.label">{{ item.label }}</span>
-            </a>
-        </template>
+    <TabMenu v-if="showTabs" :model="menuTabs">
+      <template #item="{ item, props }">
+        <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
+          <a v-ripple :href="href" v-bind="props.action" @click="navigate">
+            <span v-bind="props.icon" />
+            <span v-bind="props.label">{{ item.label }}</span>
+          </a>
+        </router-link>
+        <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action">
+          <span v-bind="props.icon" />
+          <span v-bind="props.label">{{ item.label }}</span>
+        </a>
+      </template>
     </TabMenu>
-    <RouterView />
 
     <Chart v-if="route.params.socCode === '00-0000'" type="line" :data="lineChartData" :options="lineChartOptions" class="w-full md:w-[30rem]" />
 

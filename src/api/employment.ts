@@ -8,7 +8,9 @@ export interface Employment {
     id: string,
     socCode: string,
     date: string,
-    value: number
+    value: number,
+    forecasted: boolean
+    title: string
 }
 
 export const fetchEmployment = async function(socCode: string) {

@@ -5,7 +5,7 @@
 
 <template>
   <main>
-    <h1>Certification Information</h1>
+    <h1>ya mum</h1>
 
   </main>
 </template>
