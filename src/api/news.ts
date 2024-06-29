@@ -7,7 +7,7 @@ export interface NewsWrapper {
 
 export interface News {
     id: string,
-    socCode: string,
+    socCodes: string[],
     title: string,
     description: string,
     categories: string[],
