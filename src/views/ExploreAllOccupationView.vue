@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
-import { fetchChildOccupation, fetchOccupation, Occupation } from '@/api/occupation'; // Adjust import as per your actual implementation
+import { fetchChildOccupation, fetchOccupation, type Occupation } from '@/api/occupation'; // Adjust import as per your actual implementation
 import { useRoute, useRouter } from 'vue-router';
 import { isDetailedSoc } from '@/util/soc-support';
 import SimpleOccupationButton from '@/components/SimpleOccupationButton.vue'; // Adjust component path as per your actual implementation
@@ -53,8 +53,27 @@ const refreshContent = async () => {
   } else {
     children.value = [];
   }
+  pullEmploymentBreakdown(children.value)
+
   showTabs.value = socCode !== '00-0000';
 };
+
+const pullEmploymentBreakdown = async (children: Occupation[]) => {
+  const employmentResponses = await Promise.all(children.map(c => fetchEmployment(c.socCode)));
+  const employmentData = employmentResponses.map(r => {
+    const singleSocEmployment = r.data.employment.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).filter(e => !e.forecasted);
+    return singleSocEmployment[singleSocEmployment.length - 1];
+  });
+  pieChartData.value = {
+      labels: employmentData.map(data => data.socCode),
+      datasets: [{
+        label: 'Employment',
+        data: employmentData.map(data => data.value),
+        backgroundColor: ['rgb(192, 75, 75)', 'rgb(75, 192, 192)'],
+        hoverBackgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)']
+      }]
+    };
+}
 
 const selectOccupation = (socCode: string) => {
   router.replace({ params: { socCode } });
@@ -66,19 +85,6 @@ onMounted(async () => {
     fetchUnemployment('00-0000'),
     fetchEmployment('00-0000')
   ]);
-
-  const employmentData = employment.data.employment.filter(e => {
-    const employmentDataDate = new Date(e.date);
-    const employmentDataYear = new Date().getFullYear();
-    return employmentDataDate.getFullYear() === employmentDataYear && !e.forecasted;
-  });
-
-  employmentData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-  const lastestEmploymentData = employmentData[0];
-
-  if (lastestEmploymentData) {
-    const socCodesForLatestYear = employmentData.map(e => e.socCode);
 
     const unemploymentData = unemployment.data.unemployment.reverse();
 
@@ -92,18 +98,8 @@ onMounted(async () => {
         tension: 0.1
       }]
     };
-
-    pieChartData.value = {
-      labels: socCodesForLatestYear,
-      datasets: [{
-        label: 'Employment',
-        data: socCodesForLatestYear.values,
-        backgroundColor: ['rgb(192, 75, 75)', 'rgb(75, 192, 192)'],
-        hoverBackgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)']
-      }]
-    };
   }
-});
+);
 
 watch(route, refreshContent);
 
@@ -137,9 +133,9 @@ onMounted(refreshContent);
       </template>
     </TabMenu>
 
-    <Chart v-if="route.params.socCode === '00-0000'" type="line" :data="lineChartData" :options="lineChartOptions" class="w-full md:w-[30rem]" />
+    <Chart v-if="route.params.socCode === '00-0000'" type="line" :data="lineChartData" :options="lineChartOptions" class="lineChartSize" />
 
-    <Chart v-if="route.params.socCode === '00-0000'" type="pie" :data="pieChartData" :options="pieChartOptions" class="w-full md:w-[30rem]" />
+    <Chart v-if="route.params.socCode === '00-0000'" type="pie" :data="pieChartData" :options="pieChartOptions" class="pieChartSize" />
 
     <p v-if="!showTabs">{{ description }}</p>
 
@@ -159,5 +155,13 @@ onMounted(refreshContent);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+  }
+  .pieChartSize{
+    width: 100%;
+    height: 700px;
+  }
+  .lineChartSize{
+    width: 100%;
+    height: 400px;
   }
 </style>
