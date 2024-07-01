@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
-import { fetchChildOccupation, fetchOccupation, type Occupation } from '@/api/occupation'; // Adjust import as per your actual implementation
+import { fetchChildOccupation, fetchOccupation, type Occupation } from '@/api/occupation'; 
 import { useRoute, useRouter } from 'vue-router';
 import { isDetailedSoc } from '@/util/soc-support';
-import SimpleOccupationButton from '@/components/SimpleOccupationButton.vue'; // Adjust component path as per your actual implementation
-import OccupationBreadcrumb from '@/components/OccupationBreadcrumb.vue'; // Adjust component path as per your actual implementation
+import SimpleOccupationButton from '@/components/SimpleOccupationButton.vue'; 
+import OccupationBreadcrumb from '@/components/OccupationBreadcrumb.vue'; 
 import Chart from 'primevue/chart';
-import { fetchUnemployment } from '@/api/unemployment'; // Adjust import as per your actual implementation
-import { fetchEmployment } from '@/api/employment'; // Adjust import as per your actual implementation
+import { fetchUnemployment } from '@/api/unemployment'; 
+import { fetchEmployment } from '@/api/employment'; 
 import TabMenu from 'primevue/tabmenu';
 
 const route = useRoute();
@@ -64,8 +64,14 @@ const pullEmploymentBreakdown = async (children: Occupation[]) => {
     const singleSocEmployment = r.data.employment.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).filter(e => !e.forecasted);
     return singleSocEmployment[singleSocEmployment.length - 1];
   });
+
+const occupationNames = await Promise.all(children.map(o => fetchOccupation(o.socCode)))
+
   pieChartData.value = {
-      labels: employmentData.map(data => data.socCode),
+      labels: employmentData.map(data => {
+        const occupation = occupationNames.find(c => c.data.socCode === data.socCode);
+        return occupation ? occupation.data.title : data.socCode; //if title cannot be found, resort to soc code
+      }),
       datasets: [{
         label: 'Employment',
         data: employmentData.map(data => data.value),
