@@ -132,6 +132,9 @@ onMounted(refreshContent);
         </a>
       </template>
     </TabMenu>
+    <div v-if="route.params.socCode !== '00-0000'">
+      <RouterView/>
+    </div>
 
     <Chart v-if="route.params.socCode === '00-0000'" type="line" :data="lineChartData" :options="lineChartOptions" class="lineChartSize" />
 
