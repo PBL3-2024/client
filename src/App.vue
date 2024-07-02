@@ -8,6 +8,8 @@ import { RouterLink, RouterView } from 'vue-router'
       <li>Logo</li>
       <li>
         <button>Profile</button>
+        <button>Sign-out</button>
+        <button>Sign-in/Register</button>
       </li>
     </ul>
   </nav>

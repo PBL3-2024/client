@@ -9,6 +9,8 @@ import ManageDemandView from '@/views/ManageDemandView.vue'
 import ReportTypeView from '@/views/ReportTypeView.vue'
 import NewsView from '@/views/NewsView.vue'
 import HomePageView from '@/views/HomePageView.vue'
+import ProfileHomePageView from '@/views/ProfileHomePageView.vue'
+import ProfileView from '@/views/ProfileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,6 +49,14 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomePageView
+    }, {
+      path: '/p',
+      name: 'profileHome',
+      component: ProfileHomePageView
+    }, {
+      path: '/pview',
+      name: 'profileView',
+      component: ProfileView
     },
   ]
 })
