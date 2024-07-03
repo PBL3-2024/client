@@ -63,10 +63,10 @@ const pullEmploymentBreakdown = async (children: Occupation[]) => {
   const employmentData = employmentResponses.map(r => {
     const singleSocEmployment = r.data.employment.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).filter(e => !e.forecasted);
     return singleSocEmployment[singleSocEmployment.length - 1];
-  });
+  }).filter(e => e !== undefined);
 
 const occupationNames = await Promise.all(children.map(o => fetchOccupation(o.socCode)))
-
+console.log(occupationNames);
   pieChartData.value = {
       labels: employmentData.map(data => {
         const occupation = occupationNames.find(c => c.data.socCode === data.socCode);
