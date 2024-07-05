@@ -14,6 +14,11 @@ const pieChartData = ref<any>({});
 const pieChartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'right'
+    }
+  }
 });
 
 const refreshContent = async () => {
