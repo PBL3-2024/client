@@ -12,6 +12,7 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@auth0/auth0-vue": "^2.3.3",
     "@primevue/themes": "^4.0.0-rc.2",
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
