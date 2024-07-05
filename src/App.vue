@@ -1,5 +1,17 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { useAuth0 } from '@auth0/auth0-vue';
+
+const { loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
+
+const login = function() {
+  loginWithRedirect();
+}
+
+const doLogout = function() {
+  logout({ logoutParams: { returnTo: window.location.origin } });
+}
+
 </script>
 
 <template>
@@ -7,9 +19,9 @@ import { RouterLink, RouterView } from 'vue-router'
     <ul>
       <li>Logo</li>
       <li>
-        <button>Profile</button>
-        <button>Sign-out</button>
-        <button>Sign-in/Register</button>
+        <button v-if="isAuthenticated">{{ user?.name }}'s Profile</button>
+        <button v-if="isAuthenticated" @click="doLogout">Sign-out</button>
+        <button v-if="!isAuthenticated" @click="login">Sign-in/Register</button>
       </li>
     </ul>
   </nav>
