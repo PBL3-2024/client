@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { fetchLearningMaterial, type Learning } from '@/api/learning'
-import CertificationCard from '@/components/LearningCard.vue'
 import { useRoute, useRouter } from 'vue-router'
 import LearningCard from '@/components/LearningCard.vue';
 
@@ -22,14 +21,11 @@ watch(route, refreshContent);
 </script>
 
 <template>
-  <section>
-    <header>
-      <h2>Learning Material</h2>
-    </header>
-    <main class="content">
-      <LearningCard v-for="l in learning" :learning="l"/>
-    </main>
-  </section>
+  <v-row v-for="l in learning">
+    <v-col>
+      <LearningCard :learning="l"/>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped>

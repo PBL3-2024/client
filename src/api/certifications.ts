@@ -3,7 +3,7 @@ import { type ExternalLink } from '@/api/common'
 import { auth0 } from '@/api/auth'
 
 export interface CertificationsWrapper {
-    news: Certification[]
+    certifications: Certification[]
 }
 
 export interface Certification {

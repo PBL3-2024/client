@@ -17,24 +17,20 @@ function redirectToJob(link: ExternalLink) {
 </script>
 
 <template>
-  <Card>
-    <template #title>{{ job.title }}</template>
-    <template #subtitle>
-        <div>{{ job.company }}</div>
-        <div>{{ job.location }}</div>
-        <div>{{ job.salaryRange }}</div>
-    </template>
-    <template #content>
+  <v-card>
+    <v-card-title>{{ job.title }}</v-card-title>
+    <v-card-subtitle>
+      <div>{{ job.company }}</div>
+      <div>{{ job.location }}</div>
+      <div>{{ job.salaryRange }}</div>
+    </v-card-subtitle>
+    <v-card-text>
       <div class="description">
         {{ job.description }}
       </div>
-    </template>
-    <template #footer>
-        <div class="footer">
-            <Button v-for="link in job.externalLink" :label="link.label" @click="() => redirectToJob(link)" />
-        </div>
-    </template>
-  </Card>
+    </v-card-text>
+    <v-card-actions><v-btn v-for="link in job.externalLink" @click="redirectToJob(link)">{{ link.label }}</v-btn></v-card-actions>
+  </v-card>
 </template>
 
 <style scoped>

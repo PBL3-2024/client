@@ -10,6 +10,30 @@ import ReportTypeView from '@/views/ReportTypeView.vue'
 import NewsView from '@/views/NewsView.vue'
 import HomePageView from '@/views/HomePageView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import { auth0 } from '@/api/auth'
+
+
+const requireAuthenticated = async function(to: any, from: any) {
+  if (!auth0.isAuthenticated.value) {
+    return '/';
+  } else {
+    return true;
+  }
+}
+
+const requireSmartCityManager = async function(to: any, from: any) {
+  if (!auth0.isAuthenticated.value) {
+    return '/';
+  }
+
+  const roles = auth0?.user?.value?.userRoles || [];
+
+  if (!roles.includes('SMART_CITY_MANAGER')) {
+    return '/';
+  }
+
+  return true;
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,32 +42,43 @@ const router = createRouter({
       path: '/occupations/:socCode',
       name: 'occupations',
       component: ExploreAllOccupationView,
+      redirect: to => ({
+        path: `/occupations/${to.params.socCode}/information`
+      }),
       children: [{
         path: 'information',
-        component: InformationView
+        component: InformationView,
+        beforeEnter: requireAuthenticated,
       }, {
         path: 'news',
-        component: NewsView
+        component: NewsView,
+        beforeEnter: requireAuthenticated,
       }, {
         path: 'learning',
-        component: LearningView
+        component: LearningView,
+        beforeEnter: requireAuthenticated,
       }, {
         path: 'certifications',
-        component: CertificationView
+        component: CertificationView,
+        beforeEnter: requireAuthenticated,
       }, {
         path: 'jobs',
-        component: JobView
+        component: JobView,
+        beforeEnter: requireAuthenticated,
       }, {
         path: 'demand',
-        component: ManageDemandView
+        component: ManageDemandView,
+        beforeEnter: requireSmartCityManager
       }, {
         path: 'reports',
-        component: ReportTypeView
+        component: ReportTypeView,
+        beforeEnter: requireSmartCityManager
       }]
     }, {
       path: '/select/:socCode',
       name: 'select',
-      component: SelectMajorAndMinorGroupView
+      component: SelectMajorAndMinorGroupView,
+      beforeEnter: requireAuthenticated,
     }, {
       path: '/',
       name: 'home',
@@ -51,9 +86,10 @@ const router = createRouter({
     }, {
       path: '/profile',
       name: 'profileView',
-      component: ProfileView
+      component: ProfileView,
+      beforeEnter: requireAuthenticated,
     },
   ]
-})
+});
 
 export default router

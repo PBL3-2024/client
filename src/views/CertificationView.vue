@@ -21,14 +21,11 @@ watch(route, refreshContent);
 </script>
 
 <template>
-  <section>
-    <header>
-      <h2>Certifications</h2>
-    </header>
-    <main class="content">
-      <CertificationCard v-for="c in certs" :cert="c"/>
-    </main>
-  </section>
+  <v-row v-for="c in certs">
+    <v-col>
+      <CertificationCard :cert="c"/>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped>

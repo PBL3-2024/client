@@ -22,14 +22,11 @@ watch(route, refreshContent);
 </script>
 
 <template>
-  <section>
-    <header>
-      <h2>Jobs</h2>
-    </header>
-    <main class="content">
-      <JobPostingCard v-for="j in jobs" :job="j"/>
-    </main>
-  </section>
+  <v-row v-for="j in jobs">
+    <v-col>
+      <JobPostingCard :job="j"/>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped>

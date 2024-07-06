@@ -6,67 +6,40 @@ import Chart from 'primevue/chart';
 import { fetchEmployment } from '@/api/employment';
 import { isDetailedSoc } from '@/util/soc-support';
 import { randomizeColors } from '@/util/color-support';
+import ChildOccupationChart from '@/components/ChildOccupationChart.vue';
+import UnemploymentChart from '@/components/UnemploymentChart.vue';
 
 const route = useRoute();
 
-const title = ref<string | null>(null);
-const children = ref<Occupation[]>([]);
-const pieChartData = ref<any>({});
-const pieChartOptions = ref({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: 'right'
-    }
-  }
-});
+const description = ref<string | undefined>();
 
 const refreshContent = async () => {
   const socCode = route.params.socCode as string;
   const { data: occupation } = await fetchOccupation(socCode);
 
-  title.value = occupation.title;
-  if (!isDetailedSoc(socCode)) {
-    const { data: { occupation: childOccupations } } = await fetchChildOccupation(socCode);
-    children.value = childOccupations;
-  } else {
-    children.value = [];
-  }
-
-  pullEmploymentBreakdown(children.value);
+  description.value = occupation.description;
 };
 
-const pullEmploymentBreakdown = async (children: Occupation[]) => {
-  const employmentResponses = await Promise.all(children.map(c => fetchEmployment(c.socCode)));
-  const employmentData = employmentResponses.map(r => {
-    const singleSocEmployment = r.data.employment.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).filter(e => !e.forecasted);
-    return singleSocEmployment[singleSocEmployment.length - 1];
-  }).filter(e => e !== undefined);
-
-  const occupationNames = await Promise.all(children.map(o => fetchOccupation(o.socCode)));
-
-  pieChartData.value = {
-    labels: employmentData.map(data => {
-      const occupation = occupationNames.find(c => c.data.socCode === data.socCode);
-      return occupation ? occupation.data.title : data.socCode;
-    }),
-    datasets: [{
-      label: 'Employment',
-      data: employmentData.map(data => data.value),
-      backgroundColor: randomizeColors(employmentData.length)
-    }]
-  };
-};
-
-onMounted(refreshContent);
 watch(route, refreshContent);
+onMounted(refreshContent);
 </script>
 
 <template>
-  <main>
-    <Chart type="pie" :data="pieChartData" :options="pieChartOptions" class="pieChartSize" />
-  </main>
+<v-row>
+  <v-col cols="12" md="6" v-if="!isDetailedSoc(route.params.socCode as string)">
+    <ChildOccupationChart :socCode="route.params.socCode as string"/>
+  </v-col>
+  <v-col cols="12" md="6" v-if="route.params.socCode === '00-0000'">
+    <UnemploymentChart :socCode="route.params.socCode as string"/>
+  </v-col>
+  <v-col cols="12" v-if="description">
+    <v-card title="About" :text="description">
+      <v-card-actions v-if="isDetailedSoc(route.params.socCode as string)">
+        <v-btn color="blue-accent-4" variant="outlined">Select As Occupation Goal</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-col>
+</v-row>
 </template>
 
 <style scoped>

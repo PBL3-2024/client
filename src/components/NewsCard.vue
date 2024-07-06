@@ -16,20 +16,12 @@ function redirectToNews() {
 </script>
 
 <template>
-  <Card>
-    <template #title>{{ news.title }}</template>
-    <template #subtitle>
-        <div>Published at {{ news.published }} <Chip v-for="category in news.categories" :label="category"/></div>
-    </template>
-    <template #content>
-        {{ news.description }}
-    </template>
-    <template #footer>
-        <div class="footer">
-            <Button :label="`Read more at ${news.source}`" @click="redirectToNews" />
-        </div>
-    </template>
-  </Card>
+  <v-card>
+    <v-card-title>{{ news.title }}</v-card-title>
+    <v-card-subtitle>Published at {{ news.published }}</v-card-subtitle>
+    <v-card-text>{{ news.description }}</v-card-text>
+    <v-card-actions><v-btn @click="redirectToNews">Read more at {{ news.source }}</v-btn></v-card-actions>
+  </v-card>
 </template>
 
 <style scoped>

@@ -13,14 +13,11 @@ const emit = defineEmits(['occupationSelected'])
 </script>
 
 <template>
-  <Card>
-    <template #title>{{ occupation.title }}</template>
-    <template #footer>
-      <div class="card-body">
-        <Button @click="() => emit('occupationSelected')">Learn More</Button>
-      </div>
-    </template>
-  </Card>
+  <v-card :title="occupation.title">
+    <v-card-actions>
+      <v-btn color="blue-accent-4" variant="outlined" @click="() => emit('occupationSelected')">Learn More</v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <style scoped>
