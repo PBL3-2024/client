@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { watch, ref, onMounted } from 'vue';
 import { fetchChildOccupation, fetchOccupation, type Occupation } from '@/api/occupation';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Chart from 'primevue/chart';
 import { fetchEmployment } from '@/api/employment';
 import { isDetailedSoc } from '@/util/soc-support';
@@ -10,8 +10,13 @@ import ChildOccupationChart from '@/components/ChildOccupationChart.vue';
 import UnemploymentChart from '@/components/UnemploymentChart.vue';
 import EmploymentChart from '@/components/EmploymentChart.vue';
 import DemandCard from '@/components/DemandCard.vue';
+import { useProfileStore } from '@/stores/profile';
+import { useAuth0 } from '@auth0/auth0-vue';
 
+const auth0 = useAuth0();
+const profileStore = useProfileStore();
 const route = useRoute();
+const router = useRouter();
 
 const description = ref<string | undefined>();
 
@@ -24,6 +29,15 @@ const refreshContent = async () => {
 
 watch(route, refreshContent);
 onMounted(refreshContent);
+
+const selectGoalJob = async () => {
+  const profile = await profileStore.getOrFetch(auth0);
+  await profileStore.updateProfile({
+    ... profile,
+    goalSocCode: route.params.socCode as string
+  });
+  router.push('/');
+}
 </script>
 
 <template>
@@ -34,7 +48,7 @@ onMounted(refreshContent);
   <v-col cols="12" v-if="description">
     <v-card title="About" :text="description">
       <v-card-actions v-if="isDetailedSoc(route.params.socCode as string)">
-        <v-btn color="blue-accent-4" variant="outlined">Select As Occupation Goal</v-btn>
+        <v-btn @click="selectGoalJob" color="blue-accent-4" variant="outlined">Select As Occupation Goal</v-btn>
       </v-card-actions>
     </v-card>
   </v-col>
