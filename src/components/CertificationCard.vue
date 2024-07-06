@@ -3,12 +3,28 @@ import { onMounted, watch, ref } from "vue"
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import { type Certification } from '@/api/certifications'
+import { pushClickData } from '@/api/analytics'
+import { useAuth0 } from "@auth0/auth0-vue"
+import { useProfileStore } from "@/stores/profile"
 
 const props = defineProps<{
   cert: Certification
 }>()
 
-function redirectToCertification() {
+const profileStore = useProfileStore();
+const auth0 = useAuth0();
+
+async function redirectToCertification() {
+    const profile = await profileStore.getOrFetch(auth0);
+    await pushClickData({
+      timestamp: Date.now(),
+      elementId: props.cert.id,
+      elementType: 'CERTIFICATIONS',
+      userId: profile?.id,
+      userPostalCode: profile?.postalCode,
+      userCurrentOccupation: profile?.currentSocCode,
+      userGoalOccupation: profile?.goalSocCode
+    });
     window.location = props.cert.externalLink.url;
 }
 

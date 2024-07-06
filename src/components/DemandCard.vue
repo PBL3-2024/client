@@ -1,48 +1,26 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { type Occupation } from '@/api/occupation'
-import Card from 'primevue/card';
-import Button from 'primevue/button';
 import { fetchEmployment } from '@/api/employment';
 import { fetchDemand } from '@/api/demand';
 
 const props = defineProps<{
-  occupation: Occupation
+  socCode: string
 }>()
 
-const emit = defineEmits(['occupationSelected'])
-
-const value = ref([200, 675, 410, 390, 310, 460, 250, 240]);
-const gradient = ref(['black', 'black']);
 const demandText = ref();
 const demandColor = ref('grey');
 
 const refreshEmployment = async () => {
   const [employment, demand] = await Promise.allSettled([
-    fetchEmployment(props.occupation.socCode),
-    fetchDemand(props.occupation.socCode)
+    fetchEmployment(props.socCode),
+    fetchDemand(props.socCode)
   ]);
 
-  if (employment.status !== 'fulfilled') {
+  if (employment.status !== 'fulfilled' || demand.status !== 'fulfilled') {
     return;
   }
 
   const sortedEmployment = employment.value.data.employment.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-  value.value = sortedEmployment.map(e => e.value);
-  
-  gradient.value = sortedEmployment.map(e => {
-    if (e.forecasted) {
-      return 'red';
-    } else {
-      return 'black';
-    }
-  });
-
-  if (demand.status !== 'fulfilled') {
-    return;
-  }
-
   const filteredEmployment = sortedEmployment.filter(e => !e.forecasted);
   const latestEmployment = filteredEmployment[filteredEmployment.length - 1];
   const demandPercentChange = (demand.value.data.value / latestEmployment.value * 100.0) - 100;
@@ -64,21 +42,10 @@ watch(props, refreshEmployment);
 </script>
 
 <template>
-  <v-sheet class="card-sheet" elevation="1">
-    <h3 class="card-title">{{ occupation.title }}</h3>
-    <v-sparkline
-    class="card-sparkline"
-    :model-value="value"
-    :gradient="gradient"
-    gradient-direction="left"
-    color="black"
-    line-width="2"
-    padding="16"
-    :smooth="true"
-  ></v-sparkline>
-    <h3 v-if="demandText" :class="[demandColor, 'demand']">{{ demandText }}</h3>
-    <v-btn color="blue-accent-4" variant="outlined" @click="() => emit('occupationSelected')">Learn More</v-btn>
-  </v-sheet>
+  <v-card v-if="demandText">
+    <v-card-title>Demand <h3 v-if="demandText" :class="[demandColor, 'demand']">{{ demandText }}</h3></v-card-title>
+    <v-card-subtitle>This value is managed by your city's managers and reflects the anticipated change in demand for this occupation over the next five years.</v-card-subtitle>
+  </v-card>
 </template>
 
 <style scoped>

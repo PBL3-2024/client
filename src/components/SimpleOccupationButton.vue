@@ -15,7 +15,7 @@ const emit = defineEmits(['occupationSelected'])
 <template>
   <v-card :title="occupation.title">
     <v-card-actions>
-      <v-btn color="blue-accent-4" variant="outlined" @click="() => emit('occupationSelected')">Learn More</v-btn>
+      <v-btn color="blue-accent-4" variant="outlined" @click="() => emit('occupationSelected')">Select</v-btn>
     </v-card-actions>
   </v-card>
 </template>

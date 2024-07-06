@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { isDetailedSoc } from '@/util/soc-support';
 import DetailedOccupationButton from '@/components/DetailedOccupationButton.vue'; 
 import OccupationBreadcrumb from '@/components/OccupationBreadcrumb.vue';
+import { useAuth0 } from '@auth0/auth0-vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -12,6 +13,7 @@ const router = useRouter();
 const title = ref<string | undefined>();
 const description = ref<string | undefined>();
 const children = ref<Occupation[]>([]);
+const { user } = useAuth0();
 
 const refreshContent = async () => {
   const socCode = route.params.socCode as string;
@@ -46,8 +48,8 @@ onMounted(refreshContent);
         <v-tab text="Learning" :to="`/occupations/${route.params.socCode}/learning`"></v-tab>
         <v-tab text="Certifications" :to="`/occupations/${route.params.socCode}/certifications`"></v-tab>
         <v-tab text="Jobs" :to="`/occupations/${route.params.socCode}/jobs`"></v-tab>
-        <v-tab text="Reports" :to="`/occupations/${route.params.socCode}/reports`"></v-tab>
-        <v-tab text="Manage Demand" :to="`/occupations/${route.params.socCode}/demand`"></v-tab>
+        <v-tab v-if="user?.userRoles.includes('SMART_CITY_MANAGER')" text="Reports" :to="`/occupations/${route.params.socCode}/reports`"></v-tab>
+        <v-tab v-if="user?.userRoles.includes('SMART_CITY_MANAGER') && isDetailedSoc(route.params.socCode as string)" text="Manage Demand" :to="`/occupations/${route.params.socCode}/demand`"></v-tab>
     </v-tabs>
   </v-navigation-drawer>
   <v-row>
