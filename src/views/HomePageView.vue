@@ -6,6 +6,7 @@ import { useProfileStore } from '@/stores/profile';
 import { onMounted } from 'vue';
 import { computed } from 'vue';
 import { fetchOccupation, type Occupation } from '@/api/occupation';
+import ReportCard from '@/components/ReportCard.vue'
 
 const { isAuthenticated } = useAuth0();
 const profileStore = useProfileStore();
@@ -125,7 +126,7 @@ const setupPhase = computed(() => {
     <v-row>
       <v-col cols="12" md="6">
         <v-card title="Download Report Data" variant="tonal">
-          
+          <ReportCard/>
         </v-card>
       </v-col>
       <v-col cols="12" md="6">
