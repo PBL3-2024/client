@@ -8,6 +8,8 @@ import { isDetailedSoc } from '@/util/soc-support';
 import { randomizeColors } from '@/util/color-support';
 import ChildOccupationChart from '@/components/ChildOccupationChart.vue';
 import UnemploymentChart from '@/components/UnemploymentChart.vue';
+import EmploymentChart from '@/components/EmploymentChart.vue';
+import DemandCard from '@/components/DemandCard.vue';
 
 const route = useRoute();
 
@@ -26,11 +28,8 @@ onMounted(refreshContent);
 
 <template>
 <v-row>
-  <v-col cols="12" md="6" v-if="!isDetailedSoc(route.params.socCode as string)">
-    <ChildOccupationChart :socCode="route.params.socCode as string"/>
-  </v-col>
-  <v-col cols="12" md="6" v-if="route.params.socCode === '00-0000'">
-    <UnemploymentChart :socCode="route.params.socCode as string"/>
+  <v-col cols="12">
+    <DemandCard :socCode="route.params.socCode as string"/>
   </v-col>
   <v-col cols="12" v-if="description">
     <v-card title="About" :text="description">
@@ -38,6 +37,15 @@ onMounted(refreshContent);
         <v-btn color="blue-accent-4" variant="outlined">Select As Occupation Goal</v-btn>
       </v-card-actions>
     </v-card>
+  </v-col>
+  <v-col cols="12" md="6" v-if="!isDetailedSoc(route.params.socCode as string)">
+    <ChildOccupationChart :socCode="route.params.socCode as string"/>
+  </v-col>
+  <v-col cols="12" md="6">
+    <EmploymentChart :socCode="route.params.socCode as string"/>
+  </v-col>
+  <v-col cols="12" md="6" v-if="route.params.socCode === '00-0000'">
+    <UnemploymentChart :socCode="route.params.socCode as string"/>
   </v-col>
 </v-row>
 </template>
