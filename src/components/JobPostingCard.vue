@@ -5,12 +5,28 @@ import Chip from 'primevue/chip'
 import Button from 'primevue/button'
 import { type JobPosting } from '@/api/jobs'
 import { type ExternalLink } from '@/api/common'
+import { pushClickData } from '@/api/analytics'
+import { useAuth0 } from "@auth0/auth0-vue"
+import { useProfileStore } from "@/stores/profile"
 
 const props = defineProps<{
   job: JobPosting
 }>()
 
-function redirectToJob(link: ExternalLink) {
+const profileStore = useProfileStore();
+const auth0 = useAuth0();
+
+async function redirectToJob(link: ExternalLink) {
+    const profile = await profileStore.getOrFetch(auth0);
+    await pushClickData({
+      timestamp: Date.now(),
+      elementId: props.job.id,
+      elementType: 'JOB_POSTING',
+      userId: profile?.id,
+      userPostalCode: profile?.postalCode,
+      userCurrentOccupation: profile?.currentSocCode,
+      userGoalOccupation: profile?.goalSocCode
+    });
     window.location = link.url;
 }
 

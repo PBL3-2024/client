@@ -5,12 +5,28 @@ import Card from 'primevue/card'
 import Chip from 'primevue/chip'
 import Button from 'primevue/button'
 import { type Learning } from '@/api/learning'
+import { pushClickData } from '@/api/analytics'
+import { useAuth0 } from "@auth0/auth0-vue"
+import { useProfileStore } from "@/stores/profile"
 
 const props = defineProps<{
   learning: Learning
 }>()
 
-function redirectToLearning(url: string) {
+const profileStore = useProfileStore();
+const auth0 = useAuth0();
+
+async function redirectToLearning(url: string) {
+    const profile = await profileStore.getOrFetch(auth0);
+    await pushClickData({
+      timestamp: Date.now(),
+      elementId: props.learning.id,
+      elementType: 'LEARNING_MATERIAL',
+      userId: profile?.id,
+      userPostalCode: profile?.postalCode,
+      userCurrentOccupation: profile?.currentSocCode,
+      userGoalOccupation: profile?.goalSocCode
+    });
     window.location = url;
 }
 
