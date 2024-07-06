@@ -3,7 +3,9 @@ import { onMounted, watch, ref } from "vue";
 import Breadcrumb from 'primevue/breadcrumb';
 import { listAncestors } from "@/util/soc-support";
 import { fetchOccupation } from "@/api/occupation";
+import { useRoute, useRouter } from 'vue-router';
 
+const route = useRoute();
 const props = defineProps<{
   socCode: string
 }>()
@@ -20,8 +22,9 @@ const refreshContent = async () => {
 
   const occupations = await Promise.allSettled(ancestors.map(fetchOccupation))
   items.value = occupations.map(result => result.status === 'fulfilled' && {
-    label: result.value.data.title,
-    socCode: result.value.data.socCode
+    title: result.value.data.title,
+    disabled: false,
+    to: { name: route.name, params: { ... route.params, socCode: result.value.data.socCode } }
   });
 };
 
@@ -31,14 +34,11 @@ watch(props, refreshContent)
 </script>
 
 <template>
-  <Breadcrumb :home="home" :model="items">
-    <template #item="{ item, props }">
-      <a href="javascript:undefined" @click="() => emit('occupationSelected', item.socCode)">
-        <span :class="[item.icon, 'text-color']" />
-        <span class="text-primary font-semibold">{{ item.label }}</span>
-      </a>
+  <v-breadcrumbs :items="items">
+    <template v-slot:prepend>
+      <v-icon icon="mdi-chevron-right"></v-icon>
     </template>
-  </Breadcrumb>
+  </v-breadcrumbs>
 </template>
 
 <style scoped>

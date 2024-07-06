@@ -22,14 +22,11 @@ watch(route, refreshContent);
 </script>
 
 <template>
-  <section>
-    <header>
-      <h2>News</h2>
-    </header>
-    <main class="content">
-      <NewsCard v-for="n in news" :news="n"/>
-    </main>
-  </section>
+  <v-row v-for="n in news">
+    <v-col>
+      <NewsCard :news="n"/>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped>

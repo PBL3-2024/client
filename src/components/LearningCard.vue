@@ -10,27 +10,19 @@ const props = defineProps<{
   learning: Learning
 }>()
 
-function redirectToLearning(url: string & Location) {
+function redirectToLearning(url: string) {
     window.location = url;
 }
 
 </script>
 
 <template>
-  <Card>
-    <template #title>{{ learning.title }}</template>
-    <template #subtitle>
-        <div><Chip :label="learning.type"/></div>
-    </template>
-    <template #content>
-        <VueMarkdown :source="learning.description"/>
-    </template>
-    <template #footer>
-        <div class="footer">
-            <Button v-for="link in learning.externalLink" :label="link.label" @click="redirectToLearning(link.url)" />
-        </div>
-    </template>
-  </Card>
+  <v-card>
+    <v-card-title>{{ learning.title }}</v-card-title>
+    <v-card-subtitle>{{ learning.type }}</v-card-subtitle>
+    <v-card-text><VueMarkdown :source="learning.description"/></v-card-text>
+    <v-card-actions><v-btn v-for="link in learning.externalLink" @click="redirectToLearning(link.url)">{{ link.label }}</v-btn></v-card-actions>
+  </v-card>
 </template>
 
 <style scoped>

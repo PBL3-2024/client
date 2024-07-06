@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { type ExternalLink } from '@/api/common'
+import { auth0 } from '@/api/auth'
 
 export interface LearningWrapper {
     learningMaterial: Learning[]
@@ -16,5 +17,10 @@ export interface Learning {
 }
 
 export const fetchLearningMaterial = async function(socCode: string) {
-    return axios.get<LearningWrapper>(import.meta.env.VITE_API_URL + `/learning/?socCode=${socCode}`)
+    const token = await auth0.getAccessTokenSilently();
+    return axios.get<LearningWrapper>(import.meta.env.VITE_API_URL + `/learning/?socCode=${socCode}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
 }

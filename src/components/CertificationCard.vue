@@ -15,20 +15,12 @@ function redirectToCertification() {
 </script>
 
 <template>
-  <Card>
-    <template #title>{{ cert.title }}</template>
-    <template #subtitle>
-        <div>{{ cert.source }}</div>
-    </template>
-    <template #content>
-        {{ cert.description }}
-    </template>
-    <template #footer>
-        <div class="footer">
-            <Button :label="cert.externalLink.label" @click="redirectToCertification" />
-        </div>
-    </template>
-  </Card>
+  <v-card>
+    <v-card-title>{{ cert.title }}</v-card-title>
+    <v-card-subtitle>{{ cert.source }}</v-card-subtitle>
+    <v-card-text>{{ cert.description }}</v-card-text>
+    <v-card-actions><v-btn @click="redirectToCertification">{{ cert.externalLink.label }}</v-btn></v-card-actions>
+  </v-card>
 </template>
 
 <style scoped>

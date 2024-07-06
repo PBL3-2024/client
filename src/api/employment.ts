@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { auth0 } from '@/api/auth'
 
 export interface EmploymentWrapper {
     employment: Employment[]
@@ -13,5 +14,10 @@ export interface Employment {
 }
 
 export const fetchEmployment = async function(socCode: string) {
-    return axios.get<EmploymentWrapper>(import.meta.env.VITE_API_URL + `/employment/?socCode=${socCode}`)
+    const token = await auth0.getAccessTokenSilently();
+    return axios.get<EmploymentWrapper>(import.meta.env.VITE_API_URL + `/employment/?socCode=${socCode}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
 }
