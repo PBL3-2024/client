@@ -11,6 +11,7 @@ import NewsView from '@/views/NewsView.vue'
 import HomePageView from '@/views/HomePageView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import { auth0 } from '@/api/auth'
+import ReportsView from '@/views/ReportsView.vue'
 
 
 const requireAuthenticated = async function(to: any, from: any) {
@@ -71,7 +72,13 @@ const router = createRouter({
         beforeEnter: requireSmartCityManager
       }, {
         path: 'reports',
+        name: 'reports',
         component: ReportTypeView,
+        beforeEnter: requireSmartCityManager
+      }, {
+        path: 'reports/:type',
+        name: 'reportOfType',
+        component: ReportsView,
         beforeEnter: requireSmartCityManager
       }]
     }, {
