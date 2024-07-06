@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { type ExternalLink } from '@/api/common'
+import { auth0 } from '@/api/auth'
 
 export interface NewsWrapper {
     news: News[]
@@ -17,5 +18,10 @@ export interface News {
 }
 
 export const fetchNews = async function(socCode: string) {
-    return axios.get<NewsWrapper>(import.meta.env.VITE_API_URL + `/news/?socCode=${socCode}`)
+    const token = await auth0.getAccessTokenSilently();
+    return axios.get<NewsWrapper>(import.meta.env.VITE_API_URL + `/news/?socCode=${socCode}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
 }
